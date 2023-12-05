@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 const { MongoClient, ObjectId } = require('mongodb')
+const cors = require('cors')
 
 const dbUrl = process.env.DATABASE_URL
 const client = new MongoClient(dbUrl)
@@ -16,10 +17,10 @@ async function main() {
 
   const app = express()
 
-  // Registrar um Middleware de JSON
-  // Indica que todas as requisições podem receber
-  // Body em JSON. A partir disso, o Express aplica
-  // um JSON.parse para o conteúdo recebido
+   // Habilitamos o CORS para todas as requisições
+   app.use(cors())
+
+  
   app.use(express.json())
 
   app.get('/', function (req, res) {
