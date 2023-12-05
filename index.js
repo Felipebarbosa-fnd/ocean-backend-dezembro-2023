@@ -53,48 +53,72 @@ async function main() {
   })
 
   // Create - [POST] /item
-  app.post("/item", function (req, res) {
-    // Extraímos o nome do Body da Requisição
-    const item = req.body.nome
+  app.post("/item", async function (req, res) {
+    // Pegamos o Body da Requisição
+    const item = req.body
 
     // Adicionamos o item recebido na lista
-    lista.push(item)
+    await collection.insertOne(item)
 
     // Exibimos uma mensagem de sucesso
-    res.send("Item adicionado com sucesso!")
+    res.send(item)
   })
 
   // Update - [PUT] /item/:id
-  app.put("/item/:id", function (req, res) {
+  app.put("/item/:id", async function (req, res) {
     // Obtemos o ID do parâmetro de rota e fazemos
     // a correção de índice
-    const id = req.params.id - 1
+    const id = req.params.id
 
     // Obtemos o novo item a ser atualizado
-    const novoItem = req.body.nome
+    const novoItem = req.body
 
-    // Atualizamos o valor recebido na lista, usando
+    // Atualizamos o valor recebido na lista na collection, usando
     // a posição ID para garantir que atualizamos
     // o item correto
-    lista[id] = novoItem
+    await collection.updateOne(
+      {_id:new ObjectId(id)},
+      {$set: novoItem}
+    ) 
 
     // Enviamos uma mensagem de sucesso
-    res.send("Item atualizado com sucesso!")
+    res.send(novoItem)
+  })
+
+   // Update - [PUT] /item/:id
+   app.put("/item/:id", async function (req, res) {
+    // Obtemos o ID do parâmetro de rota
+    const id = req.params.id
+
+    // Obtemos o novo item a ser atualizado
+    const novoItem = req.body
+
+    // Atualizamos o valor recebido na collection, usando
+    // o ID para garantir que atualizamos o item correto
+    await collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: novoItem }
+    )
+
+    // Exibimos o novoItem
+    res.send(novoItem)
   })
 
   // Delete - [DELETE] /item/:id
-  app.delete("/item/:id", function (req, res) {
+  app.delete("/item/:id", async function (req, res) {
     // Obtemos o ID do Parâmetro de rota
-    const id = req.params.id - 1
+    const id = req.params.id
 
-    // Removemos o item da lista
-    delete lista[id]
+    // Removemos o item da collection
+    await collection.deleteOne({
+      _id: new ObjectId(id)
+    })
 
     // Exibimos uma mensagem de sucesso
     res.send("Item removido com sucesso!")
   })
 
-  app.listen(3000)
+  app.listen(process.env.PORT || 3000)
 }
 
 main()
